@@ -26,11 +26,14 @@
 //! serialises operations that should run in parallel.
 
 pub mod client;
+pub mod command;
 pub mod discovery;
+pub mod domains;
 pub mod message;
 pub mod transport;
 
 pub use client::{Client, SessionId};
+pub use command::Command;
 pub use discovery::{browser_ws_url, list_targets, TargetInfo};
 pub use message::{Event, Response};
 pub use transport::Transport;

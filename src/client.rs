@@ -8,6 +8,7 @@
 use serde_json::Value;
 use std::collections::VecDeque;
 
+use crate::command::Command;
 use crate::message::{Event, Frame, Request};
 use crate::transport::Transport;
 use crate::{CdpError, Result};
@@ -109,6 +110,22 @@ impl Client {
         }
     }
 
+    /// Send a typed [`Command`] and deserialize the response into its
+    /// associated `Return` type. This is the preferred call shape — grounds
+    /// the request in the canonical CDP schema and gives the caller a typed
+    /// result. Falls through to [`Self::send`] internally.
+    pub fn call<C: Command>(
+        &mut self,
+        session: Option<&SessionId>,
+        cmd: &C,
+    ) -> Result<C::Return> {
+        let params = serde_json::to_value(cmd)
+            .map_err(|e| CdpError::Parse(format!("serialize {}: {e}", C::METHOD)))?;
+        let raw = self.send(session, C::METHOD, params)?;
+        serde_json::from_value(raw)
+            .map_err(|e| CdpError::Parse(format!("deserialize {} response: {e}", C::METHOD)))
+    }
+
     /// Return the next queued event, if any. Does not block.
     pub fn next_event(&mut self) -> Option<Event> {
         self.pending_events.pop_front()
@@ -118,24 +135,26 @@ impl Client {
     /// `Target.attachToTarget {targetId, flatten: true}` and returns the
     /// assigned session id.
     pub fn attach_target(&mut self, target_id: &str) -> Result<SessionId> {
-        let result = self.send(
+        use crate::domains::target::AttachToTarget;
+        let resp = self.call(
             None,
-            "Target.attachToTarget",
-            serde_json::json!({ "targetId": target_id, "flatten": true }),
+            &AttachToTarget {
+                target_id: target_id.to_string(),
+                flatten: true,
+            },
         )?;
-        let sid = result
-            .get("sessionId")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| CdpError::Parse("attachToTarget response missing sessionId".into()))?;
-        Ok(SessionId(sid.to_string()))
+        Ok(SessionId(resp.session_id))
     }
 
     /// Send `Target.detachFromTarget {sessionId}`.
     pub fn detach(&mut self, session: &SessionId) -> Result<()> {
-        self.send(
+        use crate::domains::target::DetachFromTarget;
+        self.call(
             None,
-            "Target.detachFromTarget",
-            serde_json::json!({ "sessionId": session.as_str() }),
+            &DetachFromTarget {
+                session_id: Some(session.as_str().to_string()),
+                target_id: None,
+            },
         )?;
         Ok(())
     }
@@ -149,10 +168,25 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::domains::target::AttachToTarget;
 
     #[test]
     fn session_id_roundtrip() {
         let s = SessionId("abc".to_string());
         assert_eq!(s.as_str(), "abc");
+    }
+
+    #[test]
+    fn command_serializes_to_camel_case_params() {
+        // Verifies that a typed Command struct produces the wire-format params
+        // object the CDP server expects (camelCase field names, no wrapper).
+        let cmd = AttachToTarget {
+            target_id: "target-abc".to_string(),
+            flatten: true,
+        };
+        let params = serde_json::to_value(&cmd).unwrap();
+        assert_eq!(params["targetId"], "target-abc");
+        assert_eq!(params["flatten"], true);
+        assert!(params.get("target_id").is_none()); // no snake_case leak
     }
 }
