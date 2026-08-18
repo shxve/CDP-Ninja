@@ -21,8 +21,9 @@ pub type CookieSameSite = String;
 ///
 /// This mirrors the schema exactly. Consumers translate to their own domain
 /// types via `From`/`TryFrom` as needed (see `lester-cdp::types` for
-/// the Lester-side adapter).
-#[derive(Debug, Clone, Deserialize)]
+/// the Lester-side adapter). `Serialize` is implemented for CLI/JSON
+/// re-emission — the same struct round-trips through the wire format.
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Cookie {
     pub name: String,
