@@ -1,8 +1,7 @@
 //! Fetch domain: intercept + rewrite requests and responses.
 //!
-//! Enables the browse-as-victim / request-modification tradecraft: pause a
-//! request, rewrite headers/body, continue or fulfill locally. Also handles
-//! HTTP auth challenges via [`ContinueWithAuth`].
+//! Pause a request, rewrite headers/body, continue or fulfill locally.
+//! Also handles HTTP auth challenges via [`ContinueWithAuth`].
 //!
 //! Schema reference: `browser_protocol.json` → `Fetch` domain (stable).
 

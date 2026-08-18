@@ -21,9 +21,8 @@
 //! `Target.attachToTarget {flatten: true}` and returns the assigned session
 //! id; subsequent calls take the session id explicitly.
 //!
-//! This model is why per-tab WebSocket connections (the pattern in the
-//! pre-cdp-core `lester-cdp::client`) misses events on other targets and
-//! serialises operations that should run in parallel.
+//! This model is why per-tab WebSocket connections miss events on other
+//! targets and serialise operations that should run in parallel.
 
 pub mod client;
 pub mod command;

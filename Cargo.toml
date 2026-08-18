@@ -1,13 +1,17 @@
 [package]
-name = "cdp-core"
+name = "cdp-ninja"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "Chrome DevTools Protocol transport, session multiplexing, and discovery. Sync-first, tokio-free."
-repository = "https://github.com/shxve/cdp-core"
+description = "Chrome DevTools Protocol client library + CLI toolkit. Sync-first, tokio-free. Typed method bindings, single-socket flat-session multiplexing, post-exploitation surface."
+repository = "https://github.com/shxve/CDP-Ninja"
 readme = "README.md"
 keywords = ["cdp", "chrome", "devtools", "chromium", "websocket"]
-categories = ["web-programming", "api-bindings"]
+categories = ["web-programming", "api-bindings", "command-line-utilities"]
+
+[[bin]]
+name = "cdp"
+path = "src/main.rs"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -15,3 +19,9 @@ serde_json = "1"
 thiserror = "2"
 tungstenite = "0.24"
 ureq = "2"
+
+# CLI-only deps (unconditional — the bin target is always built with the
+# lib in a single-crate package; the lib itself does not use them).
+anyhow = "1"
+base64 = "0.22"
+clap = { version = "4", features = ["derive"] }

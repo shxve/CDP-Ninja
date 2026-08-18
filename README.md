@@ -1,11 +1,93 @@
-# cdp-core
+# CDP-Ninja
 
-Sync-first Rust client for the [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/).
+Chrome DevTools Protocol client library **and** CLI toolkit. Sync-first
+Rust. Typed method bindings grounded in the canonical protocol schema.
+Single-socket flat-session multiplexing. No `tokio`, no code-gen.
 
-Small, no code-gen, no `tokio`. Owns one WebSocket per browser session and
-multiplexes per-target sessions across it via CDP's flat-session model.
-Typed method bindings for the common post-exploitation surface, grounded in
-the canonical protocol schema.
+Ships two things in one crate:
+
+* **Library `cdp_ninja`** — the Rust API. Consume as a dep from any
+  Rust project that needs to talk CDP.
+* **Binary `cdp`** — a CLI post-exploitation surface over any
+  already-open CDP port.
+
+## Install
+
+```
+cargo install --git https://github.com/shxve/CDP-Ninja
+# Binary at ~/.cargo/bin/cdp
+```
+
+Or as a Rust library dep:
+
+```toml
+[dependencies]
+cdp-ninja = { git = "https://github.com/shxve/CDP-Ninja", branch = "main" }
+```
+
+## CLI usage
+
+```
+cdp [--port N] <command> [args...]
+
+Commands:
+  probe                              Check if CDP is open + print browser version
+  targets list                       Enumerate all debuggable targets as JSON
+  cookies dump [--via storage|network] [--target ID] [--out FILE]
+                                     Extract cookies (storage = browser-wide,
+                                     network = per-target)
+  screenshot [--target ID] [--format png|jpeg|webp] [--full-page] [--out FILE]
+                                     Capture a page screenshot
+  eval [--target ID] [--await-promise] <js>
+                                     Evaluate a JS expression, print result
+  navigate [--target ID] <url>       Navigate a page target
+```
+
+`--port` defaults to `8181` (a common Chrome CDP port). Override for Edge
+(`8182`), Brave (`8183`), Opera (`8184`), Vivaldi (`8185`), or any custom
+port a companion tool opened.
+
+### Examples
+
+```
+# Is CDP open?
+cdp probe
+
+# Grab all cookies from the browser-wide store as JSON
+cdp cookies dump > cookies.json
+
+# Same, but per-target via Network.getAllCookies on the first page target
+cdp cookies dump --via network
+
+# Screenshot the current page
+cdp screenshot --out home.png
+
+# Full-page (beyond the viewport) at reduced quality
+cdp screenshot --format jpeg --quality 70 --full-page --out home.jpg
+
+# Evaluate an expression and print the result
+cdp eval 'document.title'
+
+# Await a Promise
+cdp eval --await-promise 'fetch("/api/me").then(r => r.json())'
+
+# Navigate
+cdp navigate https://example.com/
+```
+
+## Library usage
+
+```rust
+use cdp_ninja::{Client, domains::{storage::GetCookies, page::Navigate}};
+
+let mut client = Client::connect_browser(8181)?;
+let session    = client.attach_target("target-id-here")?;
+
+let cookies = client.call(None, &GetCookies::default())?.cookies;
+let nav     = client.call(Some(&session), &Navigate::to("https://example.com/"))?;
+
+let _ = client.detach(&session);
+```
 
 ## Design
 
@@ -14,9 +96,7 @@ the canonical protocol schema.
   are routed by the browser to the right target. Per-tab-connect models
   drop events and serialise operations that should run in parallel.
 * **Sync transport.** [`tungstenite`] for WebSocket, [`ureq`] for the
-  `/json`, `/json/version`, `/json/list` HTTP endpoints. Reaches into
-  neither tokio nor async-std; drops straight into a synchronous CLI or a
-  worker thread.
+  `/json`, `/json/version`, `/json/list` HTTP endpoints. No async runtime.
 * **Typed commands.** Each CDP method is a struct implementing a
   [`Command`] trait:
   ```rust
@@ -33,38 +113,29 @@ the canonical protocol schema.
   consumers actually use — currently `target`, `network`, `storage`,
   `runtime`, `page`, `fetch`, `input`, `accessibility`, `browser`
   (~30 commands). Add on demand; wire-format tests keep every command
-  aligned with the canonical schema.
+  aligned with the canonical schema (`browser_protocol.json`, ToT 1.3).
 
 [`tungstenite`]: https://crates.io/crates/tungstenite
 [`ureq`]: https://crates.io/crates/ureq
 
-## Quick tour
+## How does CDP get opened?
 
-```rust
-use cdp_core::{Client, domains::{storage::GetCookies, page::Navigate}};
+CDP-Ninja is intentionally the client only. You need CDP already open on
+the target port. Options:
 
-let mut client = Client::connect_browser(8181)?;
-let session = client.attach_target("target-id-here")?;
+* Launch the browser yourself with `--remote-debugging-port=8181`.
+* Use a companion tool that enables CDP on a running browser at runtime.
+  Public references for that primitive: SpecterOps'
+  [CDP-Enable-BOF](https://github.com/KingOfTheNOPs/CDP-Enable-BOF).
 
-let cookies = client.call(None, &GetCookies::default())?.cookies;
-let nav     = client.call(Some(&session), &Page::Navigate::to("https://example.com/"))?;
+## History
 
-let _ = client.detach(&session);
-```
-
-For a fuller runnable example, see the [CDP-Enabler](https://github.com/shxve/CDP-Enabler)
-CLI, built on top of this crate.
-
-## Non-goals
-
-* Not a Puppeteer replacement. No headless-Chromium orchestration, no
-  page-lifecycle abstractions, no BiDi. If you want that, look at
-  [`chromiumoxide`](https://github.com/mattsse/chromiumoxide) or
-  [`headless_chrome`](https://github.com/rust-headless-chrome/rust-headless-chrome).
-* Not a CDP-enable primitive. Point cdp-core at a browser that's already
-  running with CDP open (`--remote-debugging-port=…` or an injection tool
-  that opened the port).
-* No async runtime. That's the point.
+Renamed from `cdp-core` on 2026-08-18 as the crate outgrew being just a
+transport library — it now ships a CLI, is designed as the operator-facing
+CDP framework, and works as a general-purpose client for anyone who wants
+to talk CDP from Rust. The old repo URL (github.com/shxve/cdp-core) 301s
+to this one, and consumers pinned to it via a Cargo git dep still resolve
+via GitHub's redirect.
 
 ## License
 

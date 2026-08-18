@@ -6,8 +6,8 @@
 //! These tests are cheap insurance against schema drift and typos — the
 //! authoritative reference is `~/dev/reference/cdp/browser_protocol.json`.
 
-use cdp_core::domains::{fetch, input, page, storage, target};
-use cdp_core::Command;
+use cdp_ninja::domains::{fetch, input, page, storage, target};
+use cdp_ninja::Command;
 
 /// Every Command's METHOD constant should be `Domain.method` — schema
 /// convention.

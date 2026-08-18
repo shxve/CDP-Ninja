@@ -12,10 +12,10 @@
 //! # Example
 //!
 //! ```ignore
-//! use cdp_core::domains::network::GetAllCookies;
+//! use cdp_ninja::domains::network::GetAllCookies;
 //! let response = client.call(Some(&session), &GetAllCookies)?;
 //! for cookie in response.cookies {
-//!     // cookie is a typed cdp_core::domains::network::Cookie
+//!     // cookie is a typed cdp_ninja::domains::network::Cookie
 //! }
 //! ```
 
