@@ -8,7 +8,12 @@
 //! Domain coverage is added on demand — we keep only what consumers actually
 //! use rather than generating the full 52-domain surface.
 
+pub mod accessibility;
+pub mod browser;
+pub mod fetch;
+pub mod input;
 pub mod network;
+pub mod page;
 pub mod runtime;
 pub mod storage;
 pub mod target;
