@@ -1,16 +1,17 @@
 [package]
 name = "cdp-core"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
 description = "Chrome DevTools Protocol transport, session multiplexing, and discovery. Sync-first, tokio-free."
+repository = "https://github.com/shxve/cdp-core"
+readme = "README.md"
+keywords = ["cdp", "chrome", "devtools", "chromium", "websocket"]
+categories = ["web-programming", "api-bindings"]
 
 [dependencies]
-serde = { workspace = true }
-serde_json = { workspace = true }
-thiserror = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
 tungstenite = "0.24"
 ureq = "2"
-
-[dev-dependencies]
-serde_json = { workspace = true }
