@@ -125,7 +125,7 @@ fn input_dispatch_mouse_event_click_left_preset() {
 
 #[test]
 fn storage_get_cookies_elides_absent_context() {
-    let params = serde_json::to_value(&storage::GetCookies::default()).unwrap();
+    let params = serde_json::to_value(storage::GetCookies::default()).unwrap();
     assert_eq!(params, serde_json::json!({}));
 }
 

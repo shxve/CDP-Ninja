@@ -7,10 +7,12 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// A CDP response or event, discriminated by the presence of `id` (response) or
-/// `method` (event).
+/// `method` (event). `sessionId` is the only camelCase field in the wire format
+/// at this level, so it's the only one that needs an explicit rename.
 #[derive(Debug, Deserialize)]
 pub struct Frame {
     pub id: Option<u64>,
+    #[serde(rename = "sessionId")]
     pub session_id: Option<String>,
     pub method: Option<String>,
     pub result: Option<Value>,
@@ -19,30 +21,10 @@ pub struct Frame {
 }
 
 impl Frame {
-    /// Deserialize a raw text frame. The field names in the CDP wire format are
-    /// camelCase (`sessionId`) so we parse manually.
+    /// Deserialize a raw text frame.
     pub fn parse(text: &str) -> Result<Self, serde_json::Error> {
-        let raw: RawFrame = serde_json::from_str(text)?;
-        Ok(Self {
-            id: raw.id,
-            session_id: raw.session_id,
-            method: raw.method,
-            result: raw.result,
-            params: raw.params,
-            error: raw.error,
-        })
+        serde_json::from_str(text)
     }
-}
-
-#[derive(Debug, Deserialize)]
-struct RawFrame {
-    id: Option<u64>,
-    #[serde(rename = "sessionId")]
-    session_id: Option<String>,
-    method: Option<String>,
-    result: Option<Value>,
-    params: Option<Value>,
-    error: Option<CommandError>,
 }
 
 /// A successful response to a request.
