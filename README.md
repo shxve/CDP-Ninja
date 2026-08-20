@@ -1,15 +1,15 @@
 # CDP-Ninja
 
-Chrome DevTools Protocol client library **and** CLI toolkit. Sync-first
-Rust. Typed method bindings grounded in the canonical protocol schema.
+Chrome DevTools Protocol client library **and** CLI. Sync-first Rust.
+Typed method bindings grounded in the canonical protocol schema.
 Single-socket flat-session multiplexing. No `tokio`, no code-gen.
 
 Ships two things in one crate:
 
 * **Library `cdp_ninja`** — the Rust API. Consume as a dep from any
   Rust project that needs to talk CDP.
-* **Binary `cdp`** — a CLI post-exploitation surface over any
-  already-open CDP port.
+* **Binary `cdp`** — a general-purpose CLI over any already-open CDP
+  port.
 
 ## Install
 
@@ -121,12 +121,10 @@ let _ = client.detach(&session);
 ## How does CDP get opened?
 
 CDP-Ninja is intentionally the client only. You need CDP already open on
-the target port. Options:
-
-* Launch the browser yourself with `--remote-debugging-port=8181`.
-* Use a companion tool that enables CDP on a running browser at runtime.
-  Public references for that primitive: SpecterOps'
-  [CDP-Enable-BOF](https://github.com/KingOfTheNOPs/CDP-Enable-BOF).
+the target port. The straightforward way is to launch the browser
+yourself with `--remote-debugging-port=8181` (or any port you prefer).
+Enabling CDP on an already-running browser process is out of scope for
+this crate.
 
 ## History
 

@@ -1,9 +1,8 @@
 //! Network domain: currently only `Network.getAllCookies`.
 //!
-//! For post-exploitation cookie extraction consider
-//! [`crate::domains::storage::GetCookies`] instead — it queries the live
-//! browser cookie store rather than the encrypted on-disk SQLite database
-//! and preserves fewer forensic artifacts.
+//! For most cookie-read use cases prefer
+//! [`crate::domains::storage::GetCookies`] — it does not require attaching
+//! to a target or enabling the Network domain on the current session.
 //!
 //! Schema reference: `browser_protocol.json` → `Network` domain (stable).
 

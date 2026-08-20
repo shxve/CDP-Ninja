@@ -1,8 +1,9 @@
 //! Input domain: synthetic keyboard, mouse, and text input.
 //!
-//! Used for foreground-tab flows that require user-gesture context (autofill
-//! password extraction, click-through consent dialogs). `dispatchKeyEvent`
-//! and `dispatchMouseEvent` are stable; `insertText` is experimental.
+//! Used for foreground-tab flows that require user-gesture context — form
+//! automation, dismissing consent dialogs, driving canvas UIs.
+//! `dispatchKeyEvent` and `dispatchMouseEvent` are stable; `insertText`
+//! is experimental.
 //!
 //! Schema reference: `browser_protocol.json` → `Input` domain (stable except
 //! where flagged).

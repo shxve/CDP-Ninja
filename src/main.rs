@@ -1,16 +1,15 @@
-//! `cdp` — Rust CLI toolkit for the Chrome DevTools Protocol.
+//! `cdp` — Rust CLI for the Chrome DevTools Protocol.
 //!
-//! Post-exploitation surface over any already-open CDP port. Does NOT enable
-//! CDP on a browser process; use it against a browser that was launched with
-//! `--remote-debugging-port` or against a port opened by a companion
-//! injection tool.
+//! Drives any already-open CDP port. Does NOT enable CDP on a browser
+//! process; use it against a browser that was launched with
+//! `--remote-debugging-port` or against a port that some other tool opened.
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 
 mod commands;
 
-/// `cdp` — Chrome DevTools Protocol post-exploitation toolkit.
+/// `cdp` — Chrome DevTools Protocol CLI.
 #[derive(Parser)]
 #[command(name = "cdp", version, about, long_about = None)]
 struct Cli {

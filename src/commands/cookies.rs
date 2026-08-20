@@ -1,9 +1,10 @@
-//! `cdp cookies dump` — extract cookies from a running browser.
+//! `cdp cookies dump` — read cookies from a running browser and print them
+//! as JSON.
 //!
 //! Two backends:
 //! * `--storage` (default) — `Storage.getCookies` on the default browser
 //!   context. Browser-wide (all origins), no target attach required, no
-//!   Network domain activation. Preferred for post-exploitation.
+//!   Network domain activation. Usually what you want.
 //! * `--network` — `Network.getAllCookies` on a page target. Requires
 //!   attaching to a target first; scope is the same in practice on a
 //!   default context but the code path is different.

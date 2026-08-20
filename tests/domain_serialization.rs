@@ -88,14 +88,14 @@ fn fetch_continue_with_auth_shape() {
         auth_challenge_response: fetch::AuthChallengeResponse {
             response: "ProvideCredentials".to_string(),
             username: Some("alice".to_string()),
-            password: Some("hunter2".to_string()),
+            password: Some("s3cret".to_string()),
         },
     };
     let params = serde_json::to_value(&cmd).unwrap();
     assert_eq!(params["requestId"], "req-1");
     assert_eq!(params["authChallengeResponse"]["response"], "ProvideCredentials");
     assert_eq!(params["authChallengeResponse"]["username"], "alice");
-    assert_eq!(params["authChallengeResponse"]["password"], "hunter2");
+    assert_eq!(params["authChallengeResponse"]["password"], "s3cret");
 }
 
 #[test]

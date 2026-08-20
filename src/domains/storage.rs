@@ -1,11 +1,10 @@
 //! Storage domain: browser-context-scoped cookie access.
 //!
-//! `Storage.getCookies` is preferred over `Network.getAllCookies` for
-//! post-exploitation:
-//! * It queries the live browser store, not the encrypted on-disk SQLite —
-//!   no ABE / DPAPI dance required.
-//! * It works even when Network events are not enabled on the current session.
-//! * It respects the browser-context boundary if `browserContextId` is
+//! `Storage.getCookies` reads from the live in-memory cookie store and is
+//! usually the right choice over `Network.getAllCookies`:
+//! * It does not require a target attach and does not need Network events
+//!   enabled on the current session.
+//! * It respects the browser-context boundary when `browserContextId` is
 //!   supplied (default context otherwise).
 //!
 //! Schema reference: `browser_protocol.json` → `Storage` domain (stable).
